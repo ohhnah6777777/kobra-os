@@ -227,7 +227,7 @@ export const useOS = create<OSState>((set, get) => ({
       id, app, title: meta.name, w, h, z,
       x: Math.max(10, Math.round((vw - w) / 2) + ((n * 28) % 160) - 60),
       y: Math.max(10, Math.round((vh - h) / 2.4) + ((n * 24) % 120) - 40),
-      minimized: false, maximized: false, snap: null, props,
+      minimized: false, maximized: false, snap: null, ...(props ? { props } : {}),
     };
     set((s) => ({ windows: [...s.windows, win], zTop: z, launcherOpen: false }));
     return id;

@@ -15,7 +15,10 @@ function useTaskbarApps() {
 function activate(app: AppId) {
   const st = useOS.getState();
   const wins = st.windows.filter((w) => w.app === app);
-  if (!wins.length) return st.openApp(app);
+  if (!wins.length) {
+    st.openApp(app);
+    return;
+  }
   const top = wins.reduce((a, b) => (a.z > b.z ? a : b));
   if (top.minimized) { st.updateWin(top.id, { minimized: false }); st.focusWin(top.id); }
   else if (top.z === st.zTop) st.minimizeWin(top.id);

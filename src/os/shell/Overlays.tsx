@@ -58,6 +58,7 @@ export function UpdatingOverlay({ onDone }: { onDone: () => void }) {
       const t = setTimeout(onDone, 500);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [pct, onDone]);
   return (
     <div className="fixed inset-0 z-[9900] grid place-items-center bg-blackout">

@@ -57,7 +57,10 @@ function Preferences() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const upload = (file: File) => {
-    if (!file.type.startsWith("image/")) return toast.error("Choose an image file");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Choose an image file");
+      return;
+    }
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
