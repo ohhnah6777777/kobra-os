@@ -10,33 +10,83 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
+import { Route as GSplatRouteImport } from './routes/g.$'
+import { Route as OSplatRouteImport } from './routes/o.$'
+import { Route as PlaySplatRouteImport } from './routes/play.$'
+import { Route as ZSplatRouteImport } from './routes/z.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GSplatRoute = GSplatRouteImport.update({
+  id: '/g/$',
+  path: '/g/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OSplatRoute = OSplatRouteImport.update({
+  id: '/o/$',
+  path: '/o/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaySplatRoute = PlaySplatRouteImport.update({
+  id: '/play/$',
+  path: '/play/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ZSplatRoute = ZSplatRouteImport.update({
+  id: '/z/$',
+  path: '/z/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/g/$': typeof GSplatRoute
+  '/o/$': typeof OSplatRoute
+  '/play/$': typeof PlaySplatRoute
+  '/z/$': typeof ZSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/g/$': typeof GSplatRoute
+  '/o/$': typeof OSplatRoute
+  '/play/$': typeof PlaySplatRoute
+  '/z/$': typeof ZSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/g/$': typeof GSplatRoute
+  '/o/$': typeof OSplatRoute
+  '/play/$': typeof PlaySplatRoute
+  '/z/$': typeof ZSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/assistant' | '/g/$' | '/o/$' | '/play/$' | '/z/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/assistant' | '/g/$' | '/o/$' | '/play/$' | '/z/$'
+  id: '__root__' | '/' | '/api/assistant' | '/g/$' | '/o/$' | '/play/$' | '/z/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiAssistantRoute: typeof ApiAssistantRoute
+  GSplatRoute: typeof GSplatRoute
+  OSplatRoute: typeof OSplatRoute
+  PlaySplatRoute: typeof PlaySplatRoute
+  ZSplatRoute: typeof ZSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +98,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/g/$': {
+      id: '/g/$'
+      path: '/g/$'
+      fullPath: '/g/$'
+      preLoaderRoute: typeof GSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/o/$': {
+      id: '/o/$'
+      path: '/o/$'
+      fullPath: '/o/$'
+      preLoaderRoute: typeof OSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/$': {
+      id: '/play/$'
+      path: '/play/$'
+      fullPath: '/play/$'
+      preLoaderRoute: typeof PlaySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/z/$': {
+      id: '/z/$'
+      path: '/z/$'
+      fullPath: '/z/$'
+      preLoaderRoute: typeof ZSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiAssistantRoute: ApiAssistantRoute,
+  GSplatRoute: GSplatRoute,
+  OSplatRoute: OSplatRoute,
+  PlaySplatRoute: PlaySplatRoute,
+  ZSplatRoute: ZSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

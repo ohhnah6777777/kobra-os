@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795124419068,
+      "tag": "0000_kobra_os_core",
+      "breakpoints": true
+    }
+  ]
+}
