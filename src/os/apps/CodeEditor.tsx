@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import Editor from 'react-simple-code-editor';
+import EditorModule from 'react-simple-code-editor';
+// CommonJS package: some bundler interop paths hand back { default: Editor } instead of the component.
+const Editor = ((EditorModule as unknown as { default?: typeof EditorModule }).default ?? EditorModule) as typeof EditorModule;
 // Prism ships types for its public API, but not the core-only entry.
 // @ts-expect-error The runtime core module has the same highlight API.
 import PrismCore from 'prismjs/components/prism-core';
