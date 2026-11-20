@@ -4,7 +4,7 @@ import { OS_VERSION, type Accent } from "./config";
 
 /* ---------- types ---------- */
 
-export type Wallpaper = "grid" | "wave" | "aurora" | "dunes" | "custom";
+export type Wallpaper = "forest" | "grid" | "wave" | "aurora" | "dunes" | "custom";
 export type CursorEffect = "cubes" | "liquid" | "strings" | "off";
 export type Cloak = "none" | "drive" | "classroom" | "canvas";
 
@@ -14,15 +14,26 @@ export type Settings = {
   cursorEffect: CursorEffect;
   accent: Accent;
   taskbar: "dock" | "bar";
+  /** Where the dock / bar sits. */
+  barPosition: "bottom" | "left";
+  /** Screen animations (cursor effects, window motion). Off unless the user turns them on. */
+  animations: boolean;
   clock: { h24: boolean; seconds: boolean; date: boolean; center: boolean };
   widgets: { clock: boolean; weather: boolean; sticky: boolean };
+  /** Each widget cycles large square -> rectangle -> small square. */
+  widgetSizes: Record<string, WidgetSize>;
   pinned: AppId[];
   hiddenDesktop: AppId[];
   cloak: Cloak;
   panic: { enabled: boolean; key: string; action: "minimize" | "redirect"; url: string };
   weatherCity: { name: string; lat: number; lon: number };
   lastSeenVersion: string;
+  schema: number;
 };
+
+export type WidgetSize = "lg" | "wide" | "sm";
+/** Bump when defaults change in a way that must override older saved settings. */
+export const SETTINGS_SCHEMA = 2;
 
 export type Win = {
   id: string;
@@ -61,20 +72,31 @@ export type Phase = "boot" | "lock" | "desktop" | "sleep" | "restarting" | "shut
 /* ---------- defaults ---------- */
 
 export const defaultSettings = (): Settings => ({
-  wallpaper: "grid",
+  wallpaper: "forest",
   customWallpaper: null,
-  cursorEffect: "cubes",
-  accent: "blue",
+  cursorEffect: "off",
+  accent: "white",
   taskbar: "dock",
+  barPosition: "bottom",
+  animations: false,
   clock: { h24: false, seconds: false, date: true, center: true },
-  widgets: { clock: true, weather: true, sticky: false },
+  widgets: { clock: false, weather: false, sticky: false },
+  widgetSizes: {},
   pinned: [...DEFAULT_PINNED],
   hiddenDesktop: [],
   cloak: "none",
   panic: { enabled: true, key: "`", action: "minimize", url: "https://classroom.google.com" },
   weatherCity: { name: "Edmonton", lat: 53.5461, lon: -113.4938 },
   lastSeenVersion: OS_VERSION,
+  schema: SETTINGS_SCHEMA,
 });
+
+/** Applies the newer defaults the user asked for on top of settings saved by older versions. */
+export function migrateSettings(saved: Partial<Settings> | undefined): Partial<Settings> | undefined {
+  if (!saved || (saved.schema ?? 1) >= SETTINGS_SCHEMA) return saved;
+  const d = defaultSettings();
+  return { ...saved, accent: d.accent, widgets: d.widgets, wallpaper: saved.wallpaper === "custom" ? "custom" : d.wallpaper, cursorEffect: d.cursorEffect, animations: false, pinned: d.pinned, schema: SETTINGS_SCHEMA };
+}
 
 const now = () => Date.now();
 export const defaultFs = (): Fs => ({
@@ -87,7 +109,7 @@ export const defaultFs = (): Fs => ({
     content: "# welcome to kobra os\n\nEverything here autosaves. Sign in with PIN `000` to sync across devices.",
   },
   "/Notes": { type: "dir", mtime: now() },
-  "/Notes/Quick note.md": { type: "file", mtime: now(), content: "# Quick note\n\n- [ ] try the cursor effects in Settings\n- [ ] press ` to panic" },
+  "/Notes/Quick note.md": { type: "file", mtime: now(), content: "# Quick note\n\n- [ ] turn on screen animations in Settings\n- [ ] press ` to panic" },
   "/Code": { type: "dir", mtime: now() },
   "/Code/hello.js": { type: "file", mtime: now(), content: "// hello from kobra os\nfunction greet(name) {\n  return `hey ${name}`;\n}\n\nconsole.log(greet('world'));\n" },
   "/Pictures": { type: "dir", mtime: now() },
@@ -197,7 +219,7 @@ export const useOS = create<OSState>((set, get) => ({
   setSyncStatus: (syncStatus) => set({ syncStatus }),
   hydrate: ({ settings, data, windows }) =>
     set((s) => ({
-      settings: { ...defaultSettings(), ...s.settings, ...(settings ?? {}) },
+      settings: { ...defaultSettings(), ...s.settings, ...(migrateSettings(settings) ?? {}) },
       data: { ...defaultData(), ...(data ?? {}), fs: { ...defaultFs(), ...(data?.fs ?? {}) } },
       windows: (windows ?? []).filter((w) => appById(w.app)),
       zTop: Math.max(10, ...(windows ?? []).map((w) => w.z)) + 1,

@@ -23,4 +23,4 @@ export const APPS: AppMeta[] = [
 
 export const appById = (id: string) => APPS.find((a) => a.id === id);
 
-export const DEFAULT_PINNED: AppId[] = ["games", "camera", "messages"];
+export const DEFAULT_PINNED: AppId[] = ["browser", "movies", "games", "messages", "files", "notes", "camera", "settings"];

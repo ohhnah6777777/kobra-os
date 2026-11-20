@@ -66,15 +66,56 @@
   --color-terminal: var(--terminal);
   --color-terminal-foreground: var(--terminal-foreground);
   --color-blackout: var(--blackout);
+  --font-display: "Orbitron", var(--font-sans);
+  --font-wide: "Michroma", var(--font-sans);
+
+  /* solid app colors — used inside app contents, independent of the accent */
+  --color-tint-red: var(--tint-red);
+  --color-tint-orange: var(--tint-orange);
+  --color-tint-yellow: var(--tint-yellow);
+  --color-tint-green: var(--tint-green);
+  --color-tint-mint: var(--tint-mint);
+  --color-tint-teal: var(--tint-teal);
+  --color-tint-cyan: var(--tint-cyan);
+  --color-tint-blue: var(--tint-blue);
+  --color-tint-indigo: var(--tint-indigo);
+  --color-tint-purple: var(--tint-purple);
+  --color-tint-pink: var(--tint-pink);
+  --color-tint-gray: var(--tint-gray);
+  --color-tint-slate: var(--tint-slate);
+  --color-tint-ink: var(--tint-ink);
+  --color-tint-paper: var(--tint-paper);
+
+  /* discord-style chat (Messages when maximized) */
+  --color-dc-rail: var(--dc-rail);
+  --color-dc-side: var(--dc-side);
+  --color-dc-bg: var(--dc-bg);
+  --color-dc-input: var(--dc-input);
+  --color-dc-hover: var(--dc-hover);
+  --color-dc-blurple: var(--dc-blurple);
+  --color-dc-text: var(--dc-text);
+  --color-dc-muted: var(--dc-muted);
+  --color-dc-green: var(--dc-green);
+
+  /* chrome-style browser */
+  --color-cr-frame: var(--cr-frame);
+  --color-cr-tab: var(--cr-tab);
+  --color-cr-omni: var(--cr-omni);
+  --color-cr-text: var(--cr-text);
+  --color-cr-muted: var(--cr-muted);
+  --color-cr-blue: var(--cr-blue);
+
+  --color-lock-ink: var(--lock-ink);
+  --color-movie-red: var(--movie-red);
 }
 
 :root {
   --radius: 0.75rem;
 
-  /* accent (default: blue) */
-  --accent-h: 250;
-  --accent-c: 0.17;
-  --accent-l: 0.68;
+  /* accent (default: white) */
+  --accent-h: 260;
+  --accent-c: 0;
+  --accent-l: 0.97;
 
   --obsidian: oklch(0.13 0.012 270);           /* #0a0a10-ish */
   --background: oklch(0.13 0.012 270);
@@ -109,6 +150,42 @@
   --terminal-foreground: oklch(0.88 0.04 150);
   --blackout: oklch(0 0 0);
 
+  --tint-red: oklch(0.64 0.23 25);       /* #ff3b30 */
+  --tint-orange: oklch(0.75 0.18 58);    /* #ff9500 */
+  --tint-yellow: oklch(0.87 0.17 92);    /* #ffcc00 */
+  --tint-green: oklch(0.73 0.2 145);     /* #34c759 */
+  --tint-mint: oklch(0.79 0.13 175);
+  --tint-teal: oklch(0.7 0.12 200);
+  --tint-cyan: oklch(0.78 0.13 220);
+  --tint-blue: oklch(0.62 0.2 255);      /* #007aff */
+  --tint-indigo: oklch(0.55 0.2 280);
+  --tint-purple: oklch(0.62 0.22 305);
+  --tint-pink: oklch(0.66 0.23 5);
+  --tint-gray: oklch(0.72 0.01 260);     /* #a5a5a5 */
+  --tint-slate: oklch(0.33 0.01 260);    /* #333 */
+  --tint-ink: oklch(0.16 0.01 260);
+  --tint-paper: oklch(0.98 0.005 90);
+
+  --dc-rail: oklch(0.2 0.006 270);       /* #1e1f22 */
+  --dc-side: oklch(0.25 0.007 270);      /* #2b2d31 */
+  --dc-bg: oklch(0.28 0.008 270);        /* #313338 */
+  --dc-input: oklch(0.32 0.009 270);     /* #383a40 */
+  --dc-hover: oklch(0.3 0.008 270);
+  --dc-blurple: oklch(0.59 0.2 275);     /* #5865f2 */
+  --dc-text: oklch(0.9 0.006 260);
+  --dc-muted: oklch(0.68 0.012 260);
+  --dc-green: oklch(0.66 0.17 150);
+
+  --cr-frame: oklch(0.2 0.004 265);      /* chrome dark frame #202124 */
+  --cr-tab: oklch(0.3 0.006 265);        /* #35363a */
+  --cr-omni: oklch(0.24 0.005 265);
+  --cr-text: oklch(0.93 0.004 265);
+  --cr-muted: oklch(0.72 0.008 265);
+  --cr-blue: oklch(0.75 0.11 250);       /* #8ab4f8 */
+
+  --lock-ink: oklch(0.9 0.055 80);       /* warm cream like the reference */
+  --movie-red: oklch(0.58 0.23 27);      /* #e50914 */
+
   --chart-1: oklch(0.68 0.17 250);
   --chart-2: oklch(0.72 0.15 160);
   --chart-3: oklch(0.8 0.15 80);
@@ -130,6 +207,7 @@
   color-scheme: dark;
 }
 
+[data-accent="white"] { --accent-h: 260; --accent-c: 0; --accent-l: 0.97; }
 [data-accent="blue"] { --accent-h: 250; --accent-c: 0.17; --accent-l: 0.68; }
 [data-accent="violet"] { --accent-h: 295; --accent-c: 0.19; --accent-l: 0.68; }
 [data-accent="emerald"] { --accent-h: 160; --accent-c: 0.16; --accent-l: 0.74; }

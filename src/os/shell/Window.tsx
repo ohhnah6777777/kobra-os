@@ -3,7 +3,7 @@ import { Maximize2, Minimize2, Minus, X } from "lucide-react";
 import { appById } from "../apps";
 import { AppHost } from "../AppHost";
 import { useOS, type Win } from "../store";
-import { winRect, reservedBottom } from "./layout";
+import { winRect, insets } from "./layout";
 
 type Drag =
   | { kind: "move"; sx: number; sy: number; ox: number; oy: number; fromSnap: boolean }
@@ -24,6 +24,9 @@ const edgeClass: Record<string, string> = {
 
 export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { win: Win; onSnapPreview: (s: "left" | "right" | "max" | null) => void }) {
   const taskbar = useOS((s) => s.settings.taskbar);
+  const barPosition = useOS((s) => s.settings.barPosition);
+  const animations = useOS((s) => s.settings.animations);
+  const bar = { taskbar, barPosition };
   const focused = useOS((s) => s.zTop === win.z);
   const { focusWin, updateWin, closeWin, minimizeWin, toggleMax } = useOS.getState();
   const [vp, setVp] = useState({ w: 1280, h: 800 });
@@ -40,7 +43,7 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
     return () => window.removeEventListener("resize", r);
   }, []);
 
-  const rect = winRect(win, vp.w, vp.h, taskbar);
+  const rect = winRect(win, vp.w, vp.h, bar);
   const tiled = win.maximized || !!win.snap;
 
   const onPointerMove = (e: PointerEvent) => {
@@ -57,9 +60,9 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
         return;
       }
       const nx = Math.min(Math.max(ox + e.clientX - d.sx, -win.w + 120), window.innerWidth - 120);
-      const ny = Math.min(Math.max(oy + e.clientY - d.sy, 0), window.innerHeight - reservedBottom(taskbar) - 40);
+      const ny = Math.min(Math.max(oy + e.clientY - d.sy, 0), window.innerHeight - insets(bar).bottom - 40);
       updateWin(win.id, { x: nx, y: ny });
-      const s = e.clientX <= 6 ? "left" : e.clientX >= window.innerWidth - 6 ? "right" : e.clientY <= 4 ? "max" : null;
+      const s = e.clientX <= insets(bar).left + 6 ? "left" : e.clientX >= window.innerWidth - 6 ? "right" : e.clientY <= 4 ? "max" : null;
       if (s !== snapRef.current) { snapRef.current = s; onSnapPreview(s); }
     } else {
       const { dir, sx, sy, o } = d;
@@ -105,6 +108,7 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
   };
 
   const close = () => {
+    if (!animations) { closeWin(win.id); return; }
     setClosing(true);
     setTimeout(() => closeWin(win.id), 140);
   };
@@ -113,7 +117,7 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
     <div
       data-window={win.id}
       onPointerDownCapture={() => focusWin(win.id)}
-      className={`glass window-shadow absolute flex flex-col overflow-hidden ${tiled ? "rounded-none" : "rounded-xl"} ${focused ? "border-hairline-strong" : "opacity-[0.97]"} ${closing ? "scale-95 opacity-0" : "animate-pop"} ${dragging ? "" : "transition-[left,top,width,height,opacity,transform] duration-200 ease-out"}`}
+      className={`glass window-shadow absolute flex flex-col overflow-hidden ${tiled ? "rounded-none" : "rounded-xl"} ${focused ? "border-hairline-strong" : "opacity-[0.97]"} ${closing ? "scale-95 opacity-0" : animations ? "animate-pop" : ""} ${dragging || !animations ? "" : "transition-[left,top,width,height,opacity,transform] duration-200 ease-out"}`}
       style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h, zIndex: win.z, display: win.minimized ? "none" : undefined }}
     >
       <div
@@ -148,9 +152,11 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
 
 export function SnapPreview({ side }: { side: "left" | "right" | "max" | null }) {
   const taskbar = useOS((s) => s.settings.taskbar);
+  const barPosition = useOS((s) => s.settings.barPosition);
   if (!side) return null;
-  const bottom = reservedBottom(taskbar);
+  const { left, bottom } = insets({ taskbar, barPosition });
+  const half = `calc((100% - ${left}px) / 2 - 12px)`;
   const style =
-    side === "max" ? { left: 8, top: 8, right: 8, bottom: bottom + 8 } : side === "left" ? { left: 8, top: 8, width: "calc(50% - 12px)", bottom: bottom + 8 } : { right: 8, top: 8, width: "calc(50% - 12px)", bottom: bottom + 8 };
+    side === "max" ? { left: left + 8, top: 8, right: 8, bottom: bottom + 8 } : side === "left" ? { left: left + 8, top: 8, width: half, bottom: bottom + 8 } : { right: 8, top: 8, width: half, bottom: bottom + 8 };
   return <div className="pointer-events-none fixed z-[9] rounded-2xl border border-primary/50 bg-primary/10 backdrop-blur-sm transition-all duration-150 glow" style={style} />;
 }

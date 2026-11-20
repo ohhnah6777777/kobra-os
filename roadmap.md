@@ -1,13 +1,16 @@
 # kobra os roadmap
 
-- [ ] Core shell: boot sequence, lock screen (123 guest / 000 account), desktop grid + cursor effects, windows + snapping, dock/taskbar, 6-dots launcher + power, context menus, widgets
-- [ ] Account sync (settings, windows, files, notes, code) via Lovable Cloud
-- [ ] Apps: Games, Movies (TMDB catalog + trailers), Browser, Weather
-- [ ] Apps: Messages, Assistant (AI), Terminal
-- [ ] Apps: Code Editor, Files, Notes, Calculator, Canvas, Camera
-- [ ] Settings: preferences, school tools (cloaker, about:blank, panic key), account, updates
-- [ ] Browser v2 spec: search provider choice, lock icon, bookmarks bar, loading bar, framing error fallback, history drawer + bookmarks in localStorage
-- [ ] Browser proxy engine: Scramjet (MercuryWorkshop) with fallback to simple proxy
-- [ ] Messages: Discord-like layout when maximized (server rail, channel list, member list) using user reference images
-- [ ] TMDB key for Movies (needs user's key)
-- [ ] Auto-update changelog modal + "Updating kobra os..." blackout
+## Done earlier
+- [x] Core shell, account sync, 14 apps, school tools, changelog
+
+## Current batch (user's chat requests)
+- [ ] White default accent; rich solid colors inside every app (icons untouched)
+- [ ] Remove left desktop icon grid, watermark; top-center clock instead
+- [ ] Windows-style lock screen copying reference (day / tracked date / bold time); no power or extra buttons
+- [ ] Remove power/over-complicated buttons in launcher
+- [ ] Default wallpaper = user's rain forest video; cursor/screen animations off by default, toggle in Settings
+- [ ] Bottom bar 25-30% smaller + Settings option for vertical bar on the left
+- [ ] Widgets off by default; 3-stage resize (large square -> rectangle -> small square)
+- [ ] Movies: TMDB metadata only (no trailers, no cast), details, seasons/episodes, watchlist, anime; full playback via sussy-code providers + Simple Proxy
+- [ ] Browser: Chrome look, no preset bookmarks, Scramjet fixed (no selector), no simple proxy
+- [ ] Messages: Discord look when maximized (bubbles, emojis, sidebar); compact glass look otherwise
