@@ -7,7 +7,6 @@ import { useProps } from "./appMenu";
 export function PropertiesDialog() {
   const { app, set } = useProps();
   const pinned = useOS((s) => (app ? s.settings.pinned.includes(app) : false));
-  const hidden = useOS((s) => (app ? s.settings.hiddenDesktop.includes(app) : false));
   const meta = app ? appById(app) : undefined;
   if (!meta) return null;
   const rows: [string, string][] = [
@@ -16,7 +15,6 @@ export function PropertiesDialog() {
     ["Kind", "Pre-installed application"],
     ["Version", `bundled with kobra os v${OS_VERSION}`],
     ["Taskbar", pinned ? "Pinned" : "Not pinned"],
-    ["Desktop", hidden ? "Hidden" : "Visible"],
   ];
   return (
     <div className="fixed inset-0 z-[9500] grid place-items-center bg-background/40 backdrop-blur-sm" onPointerDown={() => set(null)}>

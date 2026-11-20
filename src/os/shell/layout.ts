@@ -4,7 +4,8 @@ type Bar = Pick<Settings, "taskbar" | "barPosition">;
 
 /** Space the dock / bar takes up on each edge, so windows never sit under it. */
 export function insets(bar: Bar) {
-  const size = bar.taskbar === "dock" ? 62 : 40;
+  // Dock: 36px icons + padding + 8px gap from the edge. Bar: fixed 40px (44px wide when vertical).
+  const size = bar.taskbar === "dock" ? (bar.barPosition === "left" ? 58 : 60) : bar.barPosition === "left" ? 44 : 40;
   return bar.barPosition === "left" ? { left: size, bottom: 0 } : { left: 0, bottom: size };
 }
 

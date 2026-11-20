@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useOS, type CursorEffect } from "../store";
+import forestVideo from "@/assets/forest_rain_wallpaper.mp4.asset.json";
+import forestPoster from "@/assets/forest_rain_poster.jpg.asset.json";
 
 const CELL = 46;
 
@@ -52,7 +54,11 @@ function Art({ kind }: { kind: string }) {
 export function Wallpaper() {
   const wallpaper = useOS((s) => s.settings.wallpaper);
   const custom = useOS((s) => s.settings.customWallpaper);
-  const effect = useOS((s) => s.settings.cursorEffect);
+  const animations = useOS((s) => s.settings.animations);
+  const chosenEffect = useOS((s) => s.settings.cursorEffect);
+  // Screen animations are off unless the user turns them on in Settings.
+  const effect: CursorEffect = animations ? chosenEffect : "off";
+  const showCanvas = wallpaper === "grid" || effect !== "off";
   const accent = useOS((s) => s.settings.accent);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const effectRef = useRef<CursorEffect>(effect);
@@ -209,11 +215,13 @@ export function Wallpaper() {
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
     };
-  }, [accent]);
+  }, [accent, showCanvas]);
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-obsidian" aria-hidden>
-      {wallpaper === "custom" && custom ? (
+      {wallpaper === "forest" ? (
+        <video src={forestVideo.url} poster={forestPoster.url} autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover" />
+      ) : wallpaper === "custom" && custom ? (
         <img src={custom} alt="" className="absolute inset-0 size-full object-cover" />
       ) : (
         <Art kind={wallpaper} />
@@ -221,10 +229,7 @@ export function Wallpaper() {
       {wallpaper === "grid" && (
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 45%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 60%)" }} />
       )}
-      <canvas ref={canvasRef} className="absolute inset-0" style={{ opacity: wallpaper === "grid" ? 1 : 0.55 }} />
-      <div className="pointer-events-none absolute inset-0 grid place-items-center">
-        <span className="select-none text-[clamp(5rem,16vw,14rem)] font-bold lowercase tracking-[-0.06em] text-foreground/[0.035]">kobra</span>
-      </div>
+      {showCanvas && <canvas ref={canvasRef} className="absolute inset-0" style={{ opacity: wallpaper === "grid" ? 1 : 0.55 }} />}
     </div>
   );
 }

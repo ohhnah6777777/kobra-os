@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Image, LayoutGrid, Minimize2, RefreshCw, Settings2 } from "lucide-react";
+import { Image, LayoutGrid, Minimize2, Settings2 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { OS_VERSION } from "./config";
 import { startPersistence } from "./persistence";
@@ -8,7 +8,7 @@ import { useOS } from "./store";
 import { Boot } from "./shell/Boot";
 import { LockScreen } from "./shell/LockScreen";
 import { Wallpaper } from "./shell/Wallpaper";
-import { DesktopIcons } from "./shell/DesktopIcons";
+import { DesktopClock } from "./shell/DesktopClock";
 import { Widgets } from "./shell/Widgets";
 import { SnapPreview, WindowFrame } from "./shell/Window";
 import { Dock, WindowsBar } from "./shell/Taskbar";
@@ -31,7 +31,6 @@ function Desktop() {
       { label: "Change wallpaper", icon: <Image />, onSelect: () => st.openApp("settings", { tab: "preferences" }) },
       { label: "Open launcher", icon: <LayoutGrid />, onSelect: () => st.setLauncher(true) },
       { label: "Minimize all windows", icon: <Minimize2 />, onSelect: () => st.minimizeAll() },
-      ...(st.settings.hiddenDesktop.length ? [{ label: "Show hidden icons", icon: <RefreshCw />, onSelect: () => st.setSettings({ hiddenDesktop: [] }) }] : []),
       "sep",
       { label: "Settings", icon: <Settings2 />, onSelect: () => st.openApp("settings") },
     ]);
@@ -39,7 +38,7 @@ function Desktop() {
 
   return (
     <div className="fixed inset-0" onContextMenu={onContext}>
-      <DesktopIcons />
+      <DesktopClock />
       <Widgets />
       <SnapPreview side={snap} />
       {windows.map((w) => <WindowFrame key={w.id} win={w} onSnapPreview={setSnap} />)}
