@@ -1,3 +1,4 @@
+import { WALLPAPER_VIDEOS } from "../shell/Wallpaper";
 import { useRef, useState } from "react";
 import { Check, Cloud, CloudOff, ExternalLink, GraduationCap, LogIn, LogOut, Palette, RefreshCw, ShieldAlert, Sparkles, Upload, UserRound } from "lucide-react";
 import { toast } from "sonner";
@@ -16,11 +17,9 @@ const TABS: { id: Tab; label: string; icon: typeof Palette }[] = [
   { id: "updates", label: "Updates", icon: Sparkles },
 ];
 
-const WALLPAPERS: { id: Wallpaper; label: string; preview: string }[] = [
-  { id: "grid", label: "Dark grid", preview: "bg-obsidian [background-image:linear-gradient(var(--hairline)_1px,transparent_1px),linear-gradient(90deg,var(--hairline)_1px,transparent_1px)] [background-size:12px_12px]" },
-  { id: "wave", label: "Waves", preview: "bg-[linear-gradient(160deg,var(--obsidian)_35%,var(--primary)_75%,var(--chart-4))]" },
-  { id: "aurora", label: "Aurora", preview: "bg-[radial-gradient(circle_at_20%_20%,var(--primary),transparent_55%),radial-gradient(circle_at_85%_40%,var(--chart-2),transparent_50%),var(--obsidian)]" },
-  { id: "dunes", label: "Dunes", preview: "bg-[linear-gradient(180deg,var(--obsidian)_30%,color-mix(in_oklab,var(--primary)_45%,var(--obsidian)))]" },
+const WALLPAPERS: { id: Wallpaper; label: string }[] = [
+  { id: "snowy", label: "Snowy Campfire" },
+  { id: "blackhole", label: "Black Hole" },
 ];
 
 const EFFECTS: { id: CursorEffect; label: string; hint: string }[] = [
@@ -78,11 +77,12 @@ function Preferences() {
 
   return (
     <div className="space-y-4">
-      <Section title="Wallpaper" desc="Pick an abstract wallpaper, upload your own, or draw one in Canvas.">
+      <Section title="Wallpaper" desc="Pick a live wallpaper, upload your own, or draw one in Canvas.">
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {WALLPAPERS.map((w) => (
             <button key={w.id} onClick={() => set({ wallpaper: w.id })} className="group text-left">
-              <div className={`relative aspect-video overflow-hidden rounded-lg border-2 transition ${s.wallpaper === w.id ? "border-primary glow" : "border-hairline group-hover:border-hairline-strong"} ${w.preview}`}>
+              <div className={`relative aspect-video overflow-hidden rounded-lg border-2 transition ${s.wallpaper === w.id ? "border-primary glow" : "border-hairline group-hover:border-hairline-strong"}`}>
+                <video src={WALLPAPER_VIDEOS[w.id]} muted loop autoPlay playsInline className="absolute inset-0 size-full object-cover" />
                 {s.wallpaper === w.id && <Check className="absolute right-1 top-1 size-3.5 text-primary" />}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">{w.label}</div>
@@ -101,7 +101,7 @@ function Preferences() {
         </div>
         <div className="mt-3 flex gap-2">
           <button className="os-btn" onClick={() => fileRef.current?.click()}><Upload className="size-4" />Upload image</button>
-          {s.customWallpaper && <button className="os-btn" onClick={() => set({ customWallpaper: null, wallpaper: s.wallpaper === "custom" ? "grid" : s.wallpaper })}>Remove custom</button>}
+          {s.customWallpaper && <button className="os-btn" onClick={() => set({ customWallpaper: null, wallpaper: s.wallpaper === "custom" ? "snowy" : s.wallpaper })}>Remove custom</button>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} />
       </Section>

@@ -4,7 +4,7 @@ import { OS_VERSION, type Accent } from "./config";
 
 /* ---------- types ---------- */
 
-export type Wallpaper = "forest" | "grid" | "wave" | "aurora" | "dunes" | "custom";
+export type Wallpaper = "snowy" | "blackhole" | "custom";
 export type CursorEffect = "cubes" | "liquid" | "strings" | "off";
 export type Cloak = "none" | "drive" | "classroom" | "canvas";
 
@@ -72,7 +72,7 @@ export type Phase = "boot" | "lock" | "desktop" | "sleep" | "restarting" | "shut
 /* ---------- defaults ---------- */
 
 export const defaultSettings = (): Settings => ({
-  wallpaper: "forest",
+  wallpaper: "snowy",
   customWallpaper: null,
   cursorEffect: "off",
   accent: "white",
@@ -95,7 +95,7 @@ export const defaultSettings = (): Settings => ({
 export function migrateSettings(saved: Partial<Settings> | undefined): Partial<Settings> | undefined {
   if (!saved || (saved.schema ?? 1) >= SETTINGS_SCHEMA) return saved;
   const d = defaultSettings();
-  return { ...saved, accent: d.accent, widgets: d.widgets, wallpaper: saved.wallpaper === "custom" ? "custom" : d.wallpaper, cursorEffect: d.cursorEffect, animations: false, pinned: d.pinned, schema: SETTINGS_SCHEMA };
+  return { ...saved, accent: d.accent, widgets: d.widgets, wallpaper: saved.wallpaper === "custom" || saved.wallpaper === "blackhole" ? saved.wallpaper : d.wallpaper, cursorEffect: d.cursorEffect, animations: false, pinned: d.pinned, schema: SETTINGS_SCHEMA };
 }
 
 const now = () => Date.now();

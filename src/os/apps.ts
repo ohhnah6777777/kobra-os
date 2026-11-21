@@ -7,8 +7,8 @@ export type AppMeta = { id: AppId; name: string; icon: string; w: number; h: num
 export const APPS: AppMeta[] = [
   { id: "games", name: "Games", icon: "/icons/games.png", w: 1040, h: 680, keywords: "play arcade" },
   { id: "camera", name: "Camera", icon: "/icons/camera.png", w: 760, h: 560, keywords: "photo webcam" },
-  { id: "messages", name: "Messages", icon: "/icons/messages.png", w: 900, h: 600, keywords: "chat rooms" },
-  { id: "movies", name: "Movies", icon: "/icons/movies.png", w: 1080, h: 700, keywords: "tv shows film" },
+  { id: "messages", name: "Carrot Chat", icon: "/icons/carrot-chat.png", w: 900, h: 600, keywords: "chat rooms" },
+  { id: "movies", name: "PICKL(movies)", icon: "/icons/pickl.png", w: 1080, h: 700, keywords: "tv shows film" },
   { id: "browser", name: "Browser", icon: "/icons/chrome.png", w: 1040, h: 680, keywords: "web internet chrome" },
   { id: "code", name: "Code Editor", icon: "/icons/vscode.png", w: 960, h: 620, keywords: "vscode editor" },
   { id: "files", name: "Files", icon: "/icons/finder.png", w: 820, h: 540, keywords: "finder explorer" },
@@ -23,4 +23,4 @@ export const APPS: AppMeta[] = [
 
 export const appById = (id: string) => APPS.find((a) => a.id === id);
 
-export const DEFAULT_PINNED: AppId[] = ["browser", "movies", "games", "messages", "files", "notes", "camera", "settings"];
+export const DEFAULT_PINNED: AppId[] = ["browser", "movies", "games", "messages", "files", "notes", "camera", "assistant", "settings"];

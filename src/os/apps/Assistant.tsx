@@ -8,7 +8,7 @@ import { APPS, type AppId } from "../apps";
 const appId = z.custom<AppId>((v: unknown) => typeof v === "string" && APPS.some(a => a.id === v));
 const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("open_app"), app: appId }), z.object({ type: z.literal("close_app"), app: appId }),
-  z.object({ type: z.literal("set_wallpaper"), wallpaper: z.enum(["grid", "wave", "aurora", "dunes"]) }),
+  z.object({ type: z.literal("set_wallpaper"), wallpaper: z.enum(["snowy", "blackhole"]) }),
   z.object({ type: z.literal("set_accent"), accent: z.enum(["blue", "violet", "emerald", "amber", "rose"]) }),
   z.object({ type: z.literal("set_cursor_effect"), effect: z.enum(["cubes", "liquid", "strings", "off"]) }),
   z.object({ type: z.literal("toggle_widget"), widget: z.enum(["clock", "weather", "sticky"]), on: z.boolean() }),

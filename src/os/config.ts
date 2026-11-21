@@ -1,10 +1,20 @@
 export const OS_NAME = "kobra os";
-export const OS_VERSION = "2.4.0";
+export const OS_VERSION = "3.0.0";
 
 export type ChangelogEntry = { version: string; date: string; kind: "patch" | "minor" | "major"; notes: string[] };
 
 /** Newest first. Bump rules: bug fix +0.0.1, UI/feature revamp +0.1.0, system overhaul +1.0.0. */
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "3.0.0",
+    date: "2026-11-21",
+    kind: "major",
+    notes: [
+      "New stock video wallpapers: Snowy Campfire and Black Hole",
+      "Messages is now Carrot Chat and Movies is now PICKL(movies) with new icons",
+      "AI assistant pinned to the dock",
+    ],
+  },
   {
     version: "2.4.0",
     date: "2026-11-20",
