@@ -19,7 +19,13 @@ export type Settings = {
   /** Screen animations (cursor effects, window motion). Off unless the user turns them on. */
   animations: boolean;
   clock: { h24: boolean; seconds: boolean; date: boolean; center: boolean };
-  widgets: { clock: boolean; weather: boolean; sticky: boolean };
+  widgets: Partial<Record<WidgetId, boolean>>;
+  /** Widgets the user locked in place. */
+  widgetLocked: string[];
+  /** Apps and installed games placed on the desktop (dragged out of the bar or installed from Game Store). */
+  desktopIcons: DesktopIcon[];
+  /** Window controls style. */
+  titleBar: "windows" | "mac";
   /** Each widget cycles large square -> rectangle -> small square. */
   widgetSizes: Record<string, WidgetSize>;
   pinned: AppId[];
@@ -32,6 +38,9 @@ export type Settings = {
 };
 
 export type WidgetSize = "lg" | "wide" | "sm";
+export const WIDGET_IDS = ["clock", "weather", "sticky", "calendar", "battery", "focus", "launcher"] as const;
+export type WidgetId = (typeof WIDGET_IDS)[number];
+export type DesktopIcon = { id: string; kind: "app" | "game"; ref: string; x: number; y: number };
 /** Bump when defaults change in a way that must override older saved settings. */
 export const SETTINGS_SCHEMA = 2;
 
@@ -80,7 +89,10 @@ export const defaultSettings = (): Settings => ({
   barPosition: "bottom",
   animations: false,
   clock: { h24: false, seconds: false, date: true, center: true },
-  widgets: { clock: false, weather: false, sticky: false },
+  widgets: {},
+  widgetLocked: [],
+  desktopIcons: [],
+  titleBar: "windows",
   widgetSizes: {},
   pinned: [...DEFAULT_PINNED],
   hiddenDesktop: [],

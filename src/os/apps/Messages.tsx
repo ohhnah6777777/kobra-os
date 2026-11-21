@@ -24,6 +24,21 @@ const color = (name: string) => palette[Array.from(name).reduce((n, c) => n + c.
 const initials = (name: string) => /^general(\d*)$/i.test(name) ? (name.slice(7) ? `G${name.slice(7)}` : "GN") : name.replace(/[^a-z0-9 ]/gi, "").split(/\s+/).map(s => s[0]).join("").slice(0, 2).toUpperCase() || "#";
 const handle = (name: string) => name.toLowerCase().replace(/\s+/g, "_");
 type Member = { id: string; name: string };
+/** Reactions travel as hidden messages so they sync live; each one toggles that emoji for that user. */
+const REACT = "\u2063react:";
+const QUICK = ["❤️", "👍", "😂", "🔥", "😮", "🥕", "👏", "😢"];
+const isReact = (m: Message) => m.content.startsWith(REACT);
+function reactionMap(rows: Message[]) {
+  const map = new Map<string, Map<string, Set<string>>>();
+  for (const row of rows) {
+    const body = row.content.slice(REACT.length); const cut = body.indexOf(":"); if (cut < 0) continue;
+    const id = body.slice(0, cut), emoji = body.slice(cut + 1); if (!emoji) continue;
+    const per = map.get(id) ?? new Map<string, Set<string>>(); const users = per.get(emoji) ?? new Set<string>();
+    if (users.has(row.user_id)) users.delete(row.user_id); else users.add(row.user_id);
+    per.set(emoji, users); map.set(id, per);
+  }
+  return map;
+}
 function Avatar({ name, small = false }: { name: string; small?: boolean }) {
   return <span className={`inline-flex shrink-0 items-center justify-center rounded-full border border-hairline-strong font-semibold ${small ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm"} ${color(name)}`}>{initials(name)}</span>;
 }
@@ -72,7 +87,7 @@ export default function MessagesApp({ win }: { win: Win }) {
     if (!account) return;
     const channel = supabase.channel(`room-unread-${win.id}-${crypto.randomUUID()}`).on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, payload => {
       const message = payload.new as Message;
-      if (notificationsRef.current && message.room_id !== selectedRef.current && message.user_id !== user.id) setUnread(previous => new Set(previous).add(message.room_id));
+      if (notificationsRef.current && message.room_id !== selectedRef.current && message.user_id !== user.id && !message.content.startsWith(REACT)) setUnread(previous => new Set(previous).add(message.room_id));
     }).subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [account, account ? user.id : null, win.id]);
@@ -121,21 +136,27 @@ export default function MessagesApp({ win }: { win: Win }) {
         const { data, error } = await supabase.from("rooms").insert({ name: name.trim(), is_private: isPrivate, created_by: user.id, salt, verifier: key ? await encrypt("kobra-ok", key) : null }).select().single(); if (error) throw error; selected = data;
       }
       if (key) { keys.current.set(selected.id, key); const names = Array.from(new Set([...remembered, selected.name])); setRemembered(names); try { localStorage.setItem("kobra:rooms", JSON.stringify(names)); } catch {} }
-      setRooms(v => [...v.filter(r => r.id !== selected.id), selected]); setRoom(selected); setTab(selected.is_private ? "Rooms" : "Global"); setMode(null); setPass(""); setName("");
+      setRooms(v => [...v.filter(r => r.id !== selected.id), selected]); setRoom(selected); setTab(/^general2?$/i.test(selected.name) ? "Global" : "Rooms"); setMode(null); setPass(""); setName("");
     } catch (e) { setError(e instanceof Error ? e.message : "Unable to open room."); } finally { setBusy(false); }
   }
-  async function send() {
-    if (!account || !room || !draft.trim() || busy) return;
-    const content = draft.trim(); setBusy(true); setError("");
-    try { const key = keys.current.get(room.id); if (room.is_private && !key) throw new Error("Unlock this room first."); const { data, error } = await supabase.from("messages").insert({ room_id: room.id, user_id: user.id, username: user.name, content: key ? await encrypt(content, key) : content, encrypted: !!key }).select().single(); if (error) throw error; setMessages(v => [...v.filter(m => m.id !== data.id), { ...data, content }].sort((a, b) => a.created_at.localeCompare(b.created_at)).slice(-100)); setDraft(""); } catch (e) { setError(e instanceof Error ? e.message : "Message not sent."); } finally { setBusy(false); }
+  async function react(messageId: string, emoji: string) { await send(`${REACT}${messageId}:${emoji}`); }
+  async function send(raw?: string) {
+    const content = (raw ?? draft).trim();
+    if (!account || !room || !content || busy) return;
+    setBusy(true); setError("");
+    try { const key = keys.current.get(room.id); if (room.is_private && !key) throw new Error("Unlock this room first."); const { data, error } = await supabase.from("messages").insert({ room_id: room.id, user_id: user.id, username: user.name, content: key ? await encrypt(content, key) : content, encrypted: !!key }).select().single(); if (error) throw error; setMessages(v => [...v.filter(m => m.id !== data.id), { ...data, content }].sort((a, b) => a.created_at.localeCompare(b.created_at)).slice(-100)); if (raw === undefined) setDraft(""); } catch (e) { setError(e instanceof Error ? e.message : "Message not sent."); } finally { setBusy(false); }
   }
+  const chatMessages = messages.filter(m => !isReact(m));
+  const reactions = reactionMap(messages.filter(isReact));
   const publicRooms = rooms.filter(r => !r.is_private);
+  const globalRooms = publicRooms.filter(r => /^general2?$/i.test(r.name));
+  const userRooms = publicRooms.filter(r => !/^general2?$/i.test(r.name));
   const privateRooms = rooms.filter(r => r.is_private && keys.current.has(r.id));
   const lockedNames = remembered.filter(n => !privateRooms.some(r => r.name === n));
   const guestRooms = [{ id: "guest-general", name: "general" }, { id: "guest-general2", name: "general2" }];
-  const listed = tab === "Global" ? account ? publicRooms : guestRooms : privateRooms;
+  const listed = tab === "Global" ? account ? globalRooms : guestRooms : userRooms;
   const signIn = () => { useOS.getState().setAuthRequested(true); useOS.getState().setPhase("lock"); };
-  const select = (id: string) => { const next = rooms.find(r => r.id === id); if (next && account) { setRoom(next); setTab(next.is_private ? "Rooms" : "Global"); } };
+  const select = (id: string) => { const next = rooms.find(r => r.id === id); if (next && account) { setRoom(next); setTab(/^general2?$/i.test(next.name) ? "Global" : "Rooms"); } };
   const create = (next: "public" | "private" | "join") => { setError(""); setMode(next); setPass(""); };
   const notice = !account && <div className="m-4 rounded-2xl border border-hairline-strong bg-card p-4 text-sm"><p>Account required to chat in public rooms</p><button className="os-btn-primary mt-3" onClick={signIn}>Sign in</button></div>;
   const actions = <div className="flex flex-wrap items-center gap-2">
@@ -156,8 +177,8 @@ export default function MessagesApp({ win }: { win: Win }) {
     <div className="flex min-h-0 flex-1">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div role="log" aria-label="Conversation" aria-live="polite" aria-busy={loading} className={`min-h-0 flex-1 overflow-y-auto ${wide ? "py-5" : "space-y-5 p-5"}`}>
-          {loading ? <p className="animate-pulse p-5 text-sm text-muted-foreground">Loading conversation…</p> : !room || !messages.length ? empty : (() => {
-            const filtered = messages.filter(m => `${m.username} ${m.content}`.toLowerCase().includes(search.toLowerCase()));
+          {loading ? <p className="animate-pulse p-5 text-sm text-muted-foreground">Loading conversation…</p> : !room || !chatMessages.length ? empty : (() => {
+            const filtered = chatMessages.filter(m => `${m.username} ${m.content}`.toLowerCase().includes(search.toLowerCase()));
             if (!filtered.length) return <p className="p-6 text-center text-sm text-muted-foreground">No messages match your search.</p>;
             return filtered.map((m, i) => {
               const previous = filtered[i - 1];
@@ -172,7 +193,9 @@ export default function MessagesApp({ win }: { win: Win }) {
                   <div className="min-w-0 flex-1">
                     {!grouped && (wide ? <div className="mb-0.5 flex flex-wrap items-baseline gap-2"><span className={`bg-transparent text-sm font-semibold ${color(m.username)?.split(" ")[1]}`}>{m.username}</span><time className="text-[10px] text-muted-foreground" dateTime={m.created_at}>{time}</time></div> : <><time dateTime={m.created_at} className="block text-[11px] text-muted-foreground">{time}</time><p className="mb-2 mt-1 text-sm font-semibold">@{handle(m.username)}</p></>)}
                     <p className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${wide ? "" : "inline-block max-w-full rounded-full border border-hairline-strong bg-background/25 px-5 py-3"}`}>{m.content}</p>
+                    {(() => { const per = reactions.get(m.id); const pills = per ? [...per].filter(([, u]) => u.size) : []; return pills.length ? <div className="mt-1.5 flex flex-wrap gap-1">{pills.map(([emoji, users]) => { const mine = account && users.has(user.id); return <button key={emoji} disabled={!account || busy} onClick={() => void react(m.id, emoji)} aria-pressed={!!mine} className={`flex h-6 items-center gap-1 rounded-full border px-2 text-xs ${mine ? "border-tint-orange bg-tint-orange/20 text-tint-orange" : "border-hairline-strong bg-muted/60"}`}><span className="font-emoji">{emoji}</span><span className="tabular-nums">{users.size}</span></button>; })}</div> : null; })()}
                   </div>
+                  {account && <div className="pointer-events-none relative w-0 opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"><div className="absolute -top-4 right-2 flex gap-0.5 rounded-full border border-hairline-strong bg-popover p-1 shadow-lg">{QUICK.map(emoji => <button key={emoji} title={`React ${emoji}`} aria-label={`React ${emoji}`} disabled={busy} onClick={() => void react(m.id, emoji)} className="font-emoji grid size-7 place-items-center rounded-full text-base transition-transform hover:scale-125 hover:bg-muted">{emoji}</button>)}</div></div>}
                 </article>
               </div>;
             });
@@ -193,15 +216,15 @@ export default function MessagesApp({ win }: { win: Win }) {
   return <div ref={root} className="relative flex h-full w-full min-w-0 overflow-hidden bg-background/60 text-chat-foreground [&_button]:transition-colors [&_button]:disabled:cursor-not-allowed [&_button]:disabled:opacity-40 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-primary">
     {wide ? <>
       <nav aria-label="Servers" className="flex w-[72px] shrink-0 flex-col items-center gap-3 overflow-y-auto border-r border-hairline bg-background/80 py-4">
-        {[{ id: "global", name: "kobra · Global" }, ...privateRooms].map(server => { const active = server.id === "global" ? tab === "Global" : room?.id === server.id; return <div className="relative flex w-full justify-center" key={server.id}><span className={`absolute left-0 top-3 w-1 rounded-r-full bg-primary transition-all ${active ? "h-6" : "h-0"}`} /><button title={server.name} aria-label={server.name} aria-pressed={active} onClick={() => { if (server.id === "global") { setTab("Global"); setRoom(publicRooms[0] ?? null); } else select(server.id); }} className={`flex h-12 w-12 items-center justify-center font-semibold transition-all hover:rounded-2xl hover:bg-primary hover:text-primary-foreground ${active ? "rounded-2xl bg-primary text-primary-foreground" : "rounded-full bg-card text-muted-foreground"}`}>{server.id === "global" ? <Globe size={24} /> : initials(server.name)}</button></div>; })}
+        {[{ id: "global", name: "Global" }, { id: "rooms", name: "Rooms" }, ...privateRooms].map(server => { const active = server.id === "global" ? tab === "Global" && !room?.is_private : server.id === "rooms" ? tab === "Rooms" && !room?.is_private : room?.id === server.id; return <div className="relative flex w-full justify-center" key={server.id}><span className={`absolute left-0 top-3 w-1 rounded-r-full bg-primary transition-all ${active ? "h-6" : "h-0"}`} /><button title={server.name} aria-label={server.name} aria-pressed={active} onClick={() => { if (server.id === "global") { setTab("Global"); setRoom(globalRooms[0] ?? null); } else if (server.id === "rooms") { setTab("Rooms"); setRoom(userRooms[0] ?? null); } else if (account) setRoom(rooms.find(r => r.id === server.id) ?? null); }} className={`flex h-12 w-12 items-center justify-center font-semibold transition-all hover:rounded-2xl hover:bg-primary hover:text-primary-foreground ${active ? "rounded-2xl bg-primary text-primary-foreground" : "rounded-full bg-card text-muted-foreground"}`}>{server.id === "global" ? <Globe size={24} /> : server.id === "rooms" ? <Hash size={24} /> : initials(server.name)}</button></div>; })}
         <div className="h-px w-8 bg-muted" />
         <button title="Create private room" aria-label="Create private room" disabled={!account} onClick={() => create("private")} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-card text-success hover:rounded-2xl hover:bg-success/20"><Plus size={24} /></button>
         <button title="Join private room" aria-label="Join private room" disabled={!account} onClick={() => create("join")} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-card text-success hover:rounded-2xl hover:bg-success/20"><Compass size={24} /></button>
       </nav>
       <aside className="flex w-60 shrink-0 flex-col border-r border-hairline bg-card/75">
-        <header className="flex min-h-16 items-center gap-2 border-b border-hairline px-4 font-semibold">{tab === "Rooms" && <LockKeyhole size={17} />}<span className="min-w-0 flex-1 truncate">{tab === "Global" ? "Global" : room?.name ?? "Private rooms"}</span><button className="text-muted-foreground hover:text-primary" disabled={!account} aria-label="Create channel" onClick={() => create(tab === "Global" ? "public" : "private")}><Plus size={18} /></button></header>
+        <header className="flex min-h-16 items-center gap-2 border-b border-hairline px-4 font-semibold">{room?.is_private && <LockKeyhole size={17} />}<span className="min-w-0 flex-1 truncate">{room?.is_private ? room.name : tab}</span><button className="text-muted-foreground hover:text-primary" disabled={!account} aria-label="Create channel" onClick={() => create("public")}><Plus size={18} /></button></header>
         <div className="min-h-0 flex-1 overflow-y-auto p-3"><h3 className="mb-3 mt-3 px-2 text-[10px] font-semibold tracking-widest text-muted-foreground">TEXT CHANNELS</h3>
-          {(tab === "Rooms" && room ? [room] : listed).map(r => <button key={r.id} disabled={!account} onClick={() => select(r.id)} className={`os-row-hover mb-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm ${room?.id === r.id ? "bg-muted text-chat-foreground" : "text-muted-foreground"} ${!account ? "line-through" : ""}`}><Hash size={19} className="shrink-0" /><span className="truncate">{r.name}</span>{unread.has(r.id) && <span aria-label="Unread messages" className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />}</button>)}
+          {(room?.is_private ? [room] : listed).map(r => <button key={r.id} disabled={!account} onClick={() => select(r.id)} className={`os-row-hover mb-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm ${room?.id === r.id ? "bg-muted text-chat-foreground" : "text-muted-foreground"} ${!account ? "line-through" : ""}`}><Hash size={19} className="shrink-0" /><span className="truncate">{r.name}</span>{unread.has(r.id) && <span aria-label="Unread messages" className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />}</button>)}
           {!listed.length && <p className="px-2 text-xs text-muted-foreground">No rooms yet. Create one to get started.</p>}
           {lockedNames.map(n => <button disabled={!account} key={n} className="os-row-hover mt-2 flex w-full items-center gap-2 rounded-lg p-2 text-left text-xs text-muted-foreground" onClick={() => { setName(n); create("join"); }}><LockKeyhole size={14} />{n} · unlock</button>)}
         </div>
