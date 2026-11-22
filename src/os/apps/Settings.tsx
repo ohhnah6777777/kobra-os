@@ -1,3 +1,4 @@
+import { WIDGET_LABELS } from "../shell/Widgets";
 import { WALLPAPER_VIDEOS } from "../shell/Wallpaper";
 import { useRef, useState } from "react";
 import { Check, Cloud, CloudOff, ExternalLink, GraduationCap, LogIn, LogOut, Palette, RefreshCw, ShieldAlert, Sparkles, Upload, UserRound } from "lucide-react";
@@ -6,7 +7,7 @@ import { APPS } from "../apps";
 import { ACCENTS, CHANGELOG, OS_VERSION } from "../config";
 import { signOut } from "../session";
 import { CLOAKS, launchAboutBlank } from "../stealth";
-import { useOS, type CursorEffect, type Wallpaper, type Win } from "../store";
+import { WIDGET_IDS, useOS, type CursorEffect, type Wallpaper, type Win } from "../store";
 
 type Tab = "preferences" | "school" | "account" | "updates";
 
@@ -146,9 +147,12 @@ function Preferences() {
           <Toggle label="Center clock in taskbar" on={s.clock.center} onChange={(v) => set({ clock: { ...s.clock, center: v } })} />
         </Section>
         <Section title="Desktop widgets">
-          <Toggle label="Clock" on={s.widgets.clock} onChange={(v) => set({ widgets: { ...s.widgets, clock: v } })} />
-          <Toggle label="Weather" on={s.widgets.weather} onChange={(v) => set({ widgets: { ...s.widgets, weather: v } })} />
-          <Toggle label="Sticky notes" on={s.widgets.sticky} onChange={(v) => set({ widgets: { ...s.widgets, sticky: v } })} />
+          {WIDGET_IDS.map((id) => <Toggle key={id} label={WIDGET_LABELS[id]} on={!!s.widgets[id]} onChange={(v) => set({ widgets: { ...s.widgets, [id]: v } })} />)}
+        </Section>
+        <Section title="Window title bar">
+          <div className="flex gap-2">
+            {([["windows", "Windows (stock)"], ["mac", "macOS lights"]] as const).map(([id, label]) => <button key={id} className="os-chip" data-active={s.titleBar === id} onClick={() => set({ titleBar: id })}>{label}</button>)}
+          </div>
         </Section>
       </div>
 

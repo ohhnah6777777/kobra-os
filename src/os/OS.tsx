@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Image, LayoutGrid, Minimize2, Settings2 } from "lucide-react";
+import { Image, LayoutGrid, LayoutDashboard, Minimize2, Settings2 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { OS_VERSION } from "./config";
 import { startPersistence } from "./persistence";
@@ -15,6 +15,8 @@ import { Dock, WindowsBar } from "./shell/Taskbar";
 import { Launcher } from "./shell/Launcher";
 import { ContextMenuLayer, useMenu } from "./shell/ContextMenu";
 import { PropertiesDialog } from "./shell/Properties";
+import { DesktopIcons, DockDragGhost } from "./shell/DesktopIcons";
+import { WallpaperFlyout, useWallpaperFlyout } from "./shell/WallpaperFlyout";
 import { ChangelogModal, RestartOverlay, ShutdownOverlay, SleepOverlay, UpdatingOverlay } from "./shell/Overlays";
 import { initScramjet } from "./lib/scramjet";
 
@@ -24,11 +26,12 @@ function Desktop() {
   const [snap, setSnap] = useState<"left" | "right" | "max" | null>(null);
 
   const onContext = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("[data-window],button,input,textarea")) return;
+    if ((e.target as HTMLElement).closest("[data-window],[data-widget],[data-dock],button,input,textarea")) return;
     e.preventDefault();
     const st = useOS.getState();
     useMenu.getState().show(e.clientX, e.clientY, [
-      { label: "Change wallpaper", icon: <Image />, onSelect: () => st.openApp("settings", { tab: "preferences" }) },
+      { label: "Change wallpaper", icon: <Image />, onSelect: () => useWallpaperFlyout.getState().show(e.clientX, e.clientY) },
+      { label: "Add widgets", icon: <LayoutDashboard />, onSelect: () => st.openApp("settings", { tab: "preferences" }) },
       { label: "Open launcher", icon: <LayoutGrid />, onSelect: () => st.setLauncher(true) },
       { label: "Minimize all windows", icon: <Minimize2 />, onSelect: () => st.minimizeAll() },
       "sep",
@@ -39,11 +42,14 @@ function Desktop() {
   return (
     <div className="fixed inset-0" onContextMenu={onContext}>
       <DesktopClock />
+      <DesktopIcons />
       <Widgets />
       <SnapPreview side={snap} />
       {windows.map((w) => <WindowFrame key={w.id} win={w} onSnapPreview={setSnap} />)}
       {taskbar === "dock" ? <Dock /> : <WindowsBar />}
       <Launcher />
+      <DockDragGhost />
+      <WallpaperFlyout />
     </div>
   );
 }

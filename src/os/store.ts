@@ -40,7 +40,7 @@ export type Settings = {
 export type WidgetSize = "lg" | "wide" | "sm";
 export const WIDGET_IDS = ["clock", "weather", "sticky", "calendar", "battery", "focus", "launcher"] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
-export type DesktopIcon = { id: string; kind: "app" | "game"; ref: string; x: number; y: number };
+export type DesktopIcon = { id: string; kind: "app" | "game"; ref: string; x: number; y: number; name?: string; icon?: string };
 /** Bump when defaults change in a way that must override older saved settings. */
 export const SETTINGS_SCHEMA = 2;
 

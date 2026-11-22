@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
-import { Maximize2, Minimize2, Minus, X } from "lucide-react";
+import { Copy, Maximize2, Minimize2, Minus, Square, X } from "lucide-react";
 import { appById } from "../apps";
 import { AppHost } from "../AppHost";
 import { useOS, type Win } from "../store";
@@ -26,6 +26,7 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
   const taskbar = useOS((s) => s.settings.taskbar);
   const barPosition = useOS((s) => s.settings.barPosition);
   const animations = useOS((s) => s.settings.animations);
+  const titleBar = useOS((s) => s.settings.titleBar ?? "windows");
   const bar = { taskbar, barPosition };
   const focused = useOS((s) => s.zTop === win.z);
   const { focusWin, updateWin, closeWin, minimizeWin, toggleMax } = useOS.getState();
@@ -123,23 +124,39 @@ export const WindowFrame = memo(function WindowFrame({ win, onSnapPreview }: { w
       <div
         onPointerDown={startMove}
         onDoubleClick={() => toggleMax(win.id)}
-        className={`flex h-10 shrink-0 select-none items-center gap-3 border-b border-hairline px-3 ${focused ? "bg-card" : "bg-muted"}`}
+        className={`flex h-9 shrink-0 select-none items-center gap-3 border-b border-hairline px-3 ${focused ? "bg-card" : "bg-muted"}`}
       >
+        {titleBar === "windows" ? (
+          <>
+            <div className="pointer-events-none flex min-w-0 flex-1 items-center gap-2 text-xs font-medium text-muted-foreground">
+              {meta && <img src={meta.icon} alt="" className="size-4" draggable={false} />}
+              <span className="truncate">{win.title}</span>
+            </div>
+            <div className="-mr-3 flex h-full items-stretch">
+              <button aria-label="Minimize" onClick={() => minimizeWin(win.id)} className="grid w-11 place-items-center text-muted-foreground hover:bg-muted hover:text-foreground"><Minus className="size-4" strokeWidth={1.5} /></button>
+              <button aria-label="Maximize" onClick={() => toggleMax(win.id)} className="grid w-11 place-items-center text-muted-foreground hover:bg-muted hover:text-foreground">{win.maximized ? <Copy className="size-3.5 -scale-x-100" strokeWidth={1.5} /> : <Square className="size-3.5" strokeWidth={1.5} />}</button>
+              <button aria-label="Close" onClick={close} className="grid w-11 place-items-center text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"><X className="size-4" strokeWidth={1.5} /></button>
+            </div>
+          </>
+        ) : (
+          <>
         <div className="flex items-center gap-2">
-          <button aria-label="Close" onClick={close} className="group grid size-3.5 place-items-center rounded-full bg-destructive/90 hover:bg-destructive">
-            <X className="size-2.5 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />
-          </button>
-          <button aria-label="Minimize" onClick={() => minimizeWin(win.id)} className="group grid size-3.5 place-items-center rounded-full bg-warning/90 hover:bg-warning">
-            <Minus className="size-2.5 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />
-          </button>
-          <button aria-label="Maximize" onClick={() => toggleMax(win.id)} className="group grid size-3.5 place-items-center rounded-full bg-success/90 hover:bg-success">
-            {win.maximized ? <Minimize2 className="size-2 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} /> : <Maximize2 className="size-2 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />}
-          </button>
-        </div>
-        <div className="pointer-events-none flex min-w-0 flex-1 items-center justify-center gap-2 pr-14 text-xs font-medium text-muted-foreground">
-          {meta && <img src={meta.icon} alt="" className="size-4" draggable={false} />}
-          <span className="truncate">{win.title}</span>
-        </div>
+            <button aria-label="Close" onClick={close} className="group grid size-3.5 place-items-center rounded-full bg-destructive/90 hover:bg-destructive">
+              <X className="size-2.5 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />
+            </button>
+            <button aria-label="Minimize" onClick={() => minimizeWin(win.id)} className="group grid size-3.5 place-items-center rounded-full bg-warning/90 hover:bg-warning">
+              <Minus className="size-2.5 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />
+            </button>
+            <button aria-label="Maximize" onClick={() => toggleMax(win.id)} className="group grid size-3.5 place-items-center rounded-full bg-success/90 hover:bg-success">
+              {win.maximized ? <Minimize2 className="size-2 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} /> : <Maximize2 className="size-2 text-primary-foreground opacity-0 group-hover:opacity-100" strokeWidth={3} />}
+            </button>
+          </div>
+          <div className="pointer-events-none flex min-w-0 flex-1 items-center justify-center gap-2 pr-14 text-xs font-medium text-muted-foreground">
+            {meta && <img src={meta.icon} alt="" className="size-4" draggable={false} />}
+            <span className="truncate">{win.title}</span>
+          </div>
+          </>
+        )}
       </div>
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <div className="h-full w-full overflow-hidden"><AppHost win={win} /></div>

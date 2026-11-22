@@ -291,3 +291,20 @@
 .dock-vertical .dock-icon:hover img { animation-name: icon-lift-x; }
 @keyframes icon-lift-x { 0% { transform: translateX(0) scale(1); } 60% { transform: translateX(7px) scale(1.18); } 100% { transform: translateX(5px) scale(1.15); } }
 @keyframes ios-shine { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+:root {
+  --chrome-frame: oklch(0.235 0.004 265);   /* #202124 */
+  --chrome-toolbar: oklch(0.335 0.005 270); /* #35363a */
+  --chrome-hover: oklch(0.4 0.006 270);
+  --chrome-text: oklch(0.9 0.005 265);
+  --chrome-dim: oklch(0.72 0.008 265);
+}
+@theme inline {
+  --color-chrome-frame: var(--chrome-frame);
+  --color-chrome-toolbar: var(--chrome-toolbar);
+  --color-chrome-hover: var(--chrome-hover);
+  --color-chrome-text: var(--chrome-text);
+  --color-chrome-dim: var(--chrome-dim);
+}
+.chrome-tab::before, .chrome-tab::after { content: ""; position: absolute; bottom: 0; width: 10px; height: 10px; pointer-events: none; }
+.chrome-tab[data-active="true"]::before { left: -10px; background: radial-gradient(circle at 0 0, transparent 10px, var(--chrome-toolbar) 10.5px); }
+.chrome-tab[data-active="true"]::after { right: -10px; background: radial-gradient(circle at 100% 0, transparent 10px, var(--chrome-toolbar) 10.5px); }
