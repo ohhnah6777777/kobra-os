@@ -14,9 +14,10 @@ const map: Record<AppId, ComponentType<{ win: Win }>> = {
   calculator: lazy(() => import("./apps/Calculator")),
   paint: lazy(() => import("./apps/Paint")),
   weather: lazy(() => import("./apps/Weather")),
-  terminal: lazy(() => import("./apps/Terminal")),
   settings: lazy(() => import("./apps/Settings")),
   assistant: lazy(() => import("./apps/Assistant")),
+  taskmanager: lazy(() => import("./apps/TaskManager")),
+  imageviewer: lazy(() => import("./apps/ImageViewer")),
 };
 
 export function AppHost({ win }: { win: Win }) {

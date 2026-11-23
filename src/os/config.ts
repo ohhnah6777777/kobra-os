@@ -1,10 +1,24 @@
 export const OS_NAME = "kobra os";
-export const OS_VERSION = "3.0.0";
+export const OS_VERSION = "3.1.0";
 
 export type ChangelogEntry = { version: string; date: string; kind: "patch" | "minor" | "major"; notes: string[] };
 
 /** Newest first. Bump rules: bug fix +0.0.1, UI/feature revamp +0.1.0, system overhaul +1.0.0. */
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: "3.1.0",
+    date: "2026-11-23",
+    kind: "minor",
+    notes: [
+      "Four live wallpapers (Snowy Campfire, Black Hole, Tom Nook, Celestial Veil) — first visit picks one at random",
+      "Messages looks like iPhone Messages, Movies looks like Netflix with profiles and full playback",
+      "New full-screen app launcher, Snap Layouts, notifications and Task Manager",
+      "Maximized windows reach the bottom edge with a compact floating dock",
+      "Game Store with Play Now and Install to OS, ChatGPT-style assistant with code downloads",
+      "Browser loads sites through the built-in proxy and searches with DuckDuckGo",
+      "Terminal removed; drag apps out of the dock to put them on the desktop",
+    ],
+  },
   {
     version: "3.0.0",
     date: "2026-11-21",

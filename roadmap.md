@@ -1,16 +1,23 @@
 # kobra os roadmap
 
 ## Done earlier
-- [x] Core shell, account sync, 14 apps, school tools, changelog
+- [x] Core shell, account sync, apps, school tools, changelog
+- [x] Right-click menus, properties card, desktop pinning, iOS widgets (off by default), Chrome look
 
-## Current batch (user's chat requests)
-- [ ] White default accent; rich solid colors inside every app (icons untouched)
-- [ ] Remove left desktop icon grid, watermark; top-center clock instead
-- [ ] Windows-style lock screen copying reference (day / tracked date / bold time); no power or extra buttons
-- [ ] Remove power/over-complicated buttons in launcher
-- [ ] Default wallpaper = user's rain forest video; cursor/screen animations off by default, toggle in Settings
-- [ ] Bottom bar 25-30% smaller + Settings option for vertical bar on the left
-- [ ] Widgets off by default; 3-stage resize (large square -> rectangle -> small square)
-- [ ] Movies: TMDB metadata only (no trailers, no cast), details, seasons/episodes, watchlist, anime; full playback via sussy-code providers + Simple Proxy
-- [ ] Browser: Chrome look, no preset bookmarks, Scramjet fixed (no selector), no simple proxy
-- [ ] Messages: Discord look when maximized (bubbles, emojis, sidebar); compact glass look otherwise
+## v3.1 full revamp (this batch)
+- [ ] Delete Terminal; Photos stays deleted; add Task Manager + Image Viewer
+- [ ] Messages + Movies back to Apple icons and names; AI = ChatGPT icon, pinned; all icons rounded
+- [ ] 4 stock video wallpapers, 1-in-4 random on first visit, never cropped; flyout with live previews
+- [ ] Windows lock screen (no power buttons / watermark); remove "Continue with Lovable"
+- [ ] Fullscreen 6-dot launcher (no FPS badge, keyboard nav, staggered tiles)
+- [ ] Maximized windows run to the bottom edge, dock floats as compact pill
+- [ ] Snap Layouts flyout on maximize; GPU window dragging
+- [ ] Dragging an app out of the dock unpins it and drops it on the desktop
+- [ ] Notification center + bell
+- [ ] Messages = iOS Messages UI (Global = general/general2, Rooms = public only, private hidden, tapback reactions)
+- [ ] Movies = Netflix UI (profiles, hero, rows, My List, Continue Watching, episodes, provider playback)
+- [ ] Browser: built-in proxy route (strips frame blockers), DuckDuckGo HTML search
+- [ ] Game Store: detail sheet, Play Now, Install to OS with progress -> desktop shortcut
+- [ ] AI: ChatGPT layout, no Lovable branding, code blocks Copy / Download / Open in Code Editor
+- [ ] Install-as-app (manifest + Settings card)
+- [ ] Lots of UI animations (toggle in Settings), visible accent color
