@@ -21,6 +21,8 @@ const TABS: { id: Tab; label: string; icon: typeof Palette }[] = [
 const WALLPAPERS: { id: Wallpaper; label: string }[] = [
   { id: "snowy", label: "Snowy Campfire" },
   { id: "blackhole", label: "Black Hole" },
+  { id: "tomnook", label: "Tom Nook" },
+  { id: "celestial", label: "Celestial Veil" },
 ];
 
 const EFFECTS: { id: CursorEffect; label: string; hint: string }[] = [

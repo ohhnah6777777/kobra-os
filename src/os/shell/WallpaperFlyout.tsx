@@ -7,6 +7,8 @@ import { WALLPAPER_VIDEOS } from "./Wallpaper";
 const CHOICES: { id: Wallpaper; label: string }[] = [
   { id: "snowy", label: "Snowy Campfire" },
   { id: "blackhole", label: "Black Hole" },
+  { id: "tomnook", label: "Tom Nook" },
+  { id: "celestial", label: "Celestial Veil" },
 ];
 
 type Flyout = { open: boolean; x: number; y: number; show: (x: number, y: number) => void; hide: () => void };

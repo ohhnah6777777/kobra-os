@@ -6,7 +6,7 @@ export type AppId =
 export type AppMeta = { id: AppId; name: string; icon: string; w: number; h: number; keywords?: string; hidden?: boolean };
 
 export const APPS: AppMeta[] = [
-  { id: "assistant", name: "ChatGPT", icon: "/icons/chatgpt.svg", w: 760, h: 640, keywords: "ai assistant help chat gpt" },
+  { id: "assistant", name: "Assistant", icon: "/icons/assistant.svg", w: 760, h: 640, keywords: "ai assistant help chat gpt" },
   { id: "browser", name: "Chrome", icon: "/icons/chrome.png", w: 1080, h: 700, keywords: "web internet browser search" },
   { id: "movies", name: "Movies", icon: "/icons/movies.png", w: 1120, h: 720, keywords: "tv shows film anime netflix" },
   { id: "games", name: "Game Store", icon: "/icons/games.png", w: 1080, h: 700, keywords: "play arcade games store" },
@@ -26,4 +26,4 @@ export const APPS: AppMeta[] = [
 export const appById = (id: string) => APPS.find((a) => a.id === id);
 export const isAppId = (id: string): id is AppId => APPS.some((a) => a.id === id);
 
-export const DEFAULT_PINNED: AppId[] = ["browser", "movies", "games", "messages", "files", "notes", "camera", "assistant", "settings"];
+export const DEFAULT_PINNED: AppId[] = ["assistant", "browser", "files", "messages", "movies", "games", "settings"];

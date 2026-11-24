@@ -2,7 +2,9 @@ import { useEffect, useRef } from "react";
 import { useOS, type CursorEffect } from "../store";
 import snowyVideo from "@/assets/snowy_campfire.mp4.asset.json";
 import blackHoleVideo from "@/assets/black_hole.mp4.asset.json";
-export const WALLPAPER_VIDEOS: Record<string, string> = { snowy: snowyVideo.url, blackhole: blackHoleVideo.url };
+import tomNookVideo from "@/assets/tom_nook.mp4.asset.json";
+import celestialVideo from "@/assets/celestial_veil.mp4.asset.json";
+export const WALLPAPER_VIDEOS: Record<string, string> = { snowy: snowyVideo.url, blackhole: blackHoleVideo.url, tomnook: tomNookVideo.url, celestial: celestialVideo.url };
 
 const CELL = 46;
 
@@ -221,7 +223,7 @@ export function Wallpaper() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-obsidian" aria-hidden>
       {WALLPAPER_VIDEOS[wallpaper] ? (
-        <video key={wallpaper} src={WALLPAPER_VIDEOS[wallpaper]} autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover" />
+        <video key={wallpaper} src={WALLPAPER_VIDEOS[wallpaper]} autoPlay muted loop playsInline className="absolute inset-0 size-full bg-blackout object-contain" />
       ) : wallpaper === "custom" && custom ? (
         <img src={custom} alt="" className="absolute inset-0 size-full object-cover" />
       ) : null}
