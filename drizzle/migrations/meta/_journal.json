@@ -8,6 +8,13 @@
       "when": 1795124419068,
       "tag": "0000_kobra_os_core",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795478619664,
+      "tag": "0001_chat_rooms_and_movie_profiles",
+      "breakpoints": true
     }
   ]
 }

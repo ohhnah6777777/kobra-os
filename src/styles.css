@@ -308,3 +308,114 @@
 .chrome-tab::before, .chrome-tab::after { content: ""; position: absolute; bottom: 0; width: 10px; height: 10px; pointer-events: none; }
 .chrome-tab[data-active="true"]::before { left: -10px; background: radial-gradient(circle at 0 0, transparent 10px, var(--chrome-toolbar) 10.5px); }
 .chrome-tab[data-active="true"]::after { right: -10px; background: radial-gradient(circle at 100% 0, transparent 10px, var(--chrome-toolbar) 10.5px); }
+
+/* ---------- v3.1 app palettes (semantic tokens) ---------- */
+:root {
+  /* iOS Messages (dark) */
+  --im-bg: oklch(0 0 0);
+  --im-panel: oklch(0.2 0.004 285);        /* #1c1c1e */
+  --im-raised: oklch(0.27 0.005 285);      /* #2c2c2e */
+  --im-sep: oklch(0.32 0.005 285);
+  --im-text: oklch(0.98 0 0);
+  --im-muted: oklch(0.65 0.01 285);        /* #8e8e93 */
+  --im-blue: oklch(0.62 0.2 255);          /* #0a84ff */
+  --im-green: oklch(0.76 0.19 150);        /* #30d158 */
+  --im-bubble: oklch(0.27 0.006 300);      /* #26252a */
+  /* Netflix */
+  --nf-bg: oklch(0.18 0 0);                /* #141414 */
+  --nf-card: oklch(0.22 0 0);              /* #181818 */
+  --nf-raised: oklch(0.3 0 0);
+  --nf-text: oklch(0.98 0 0);
+  --nf-muted: oklch(0.72 0 0);
+  --nf-red: oklch(0.58 0.23 27);           /* #e50914 */
+  --nf-green: oklch(0.72 0.17 150);        /* match % */
+  /* ChatGPT */
+  --gpt-bg: oklch(0.24 0 0);               /* #212121 */
+  --gpt-side: oklch(0.2 0 0);              /* #171717 */
+  --gpt-bubble: oklch(0.3 0 0);            /* #303030 */
+  --gpt-input: oklch(0.3 0 0);
+  --gpt-text: oklch(0.94 0 0);
+  --gpt-muted: oklch(0.75 0 0);
+  --gpt-green: oklch(0.63 0.13 165);       /* #10a37f */
+  --gpt-code: oklch(0.15 0 0);
+  /* Game Store */
+  --gs-bg: oklch(0.15 0.03 280);
+  --gs-card: oklch(0.21 0.04 285);
+  --gs-raised: oklch(0.27 0.05 285);
+  --gs-neon: oklch(0.72 0.2 320);
+  --gs-cyan: oklch(0.8 0.14 210);
+  --gs-gold: oklch(0.85 0.16 85);
+  --gs-text: oklch(0.97 0.01 285);
+  --gs-muted: oklch(0.72 0.03 285);
+  /* Task manager */
+  --tm-graph: oklch(0.8 0.18 150);
+}
+@theme inline {
+  --color-im-bg: var(--im-bg); --color-im-panel: var(--im-panel); --color-im-raised: var(--im-raised); --color-im-sep: var(--im-sep);
+  --color-im-text: var(--im-text); --color-im-muted: var(--im-muted); --color-im-blue: var(--im-blue); --color-im-green: var(--im-green); --color-im-bubble: var(--im-bubble);
+  --color-nf-bg: var(--nf-bg); --color-nf-card: var(--nf-card); --color-nf-raised: var(--nf-raised); --color-nf-text: var(--nf-text); --color-nf-muted: var(--nf-muted); --color-nf-red: var(--nf-red); --color-nf-green: var(--nf-green);
+  --color-gpt-bg: var(--gpt-bg); --color-gpt-side: var(--gpt-side); --color-gpt-bubble: var(--gpt-bubble); --color-gpt-input: var(--gpt-input); --color-gpt-text: var(--gpt-text); --color-gpt-muted: var(--gpt-muted); --color-gpt-green: var(--gpt-green); --color-gpt-code: var(--gpt-code);
+  --color-gs-bg: var(--gs-bg); --color-gs-card: var(--gs-card); --color-gs-raised: var(--gs-raised); --color-gs-neon: var(--gs-neon); --color-gs-cyan: var(--gs-cyan); --color-gs-gold: var(--gs-gold); --color-gs-text: var(--gs-text); --color-gs-muted: var(--gs-muted);
+  --color-tm-graph: var(--tm-graph);
+}
+
+/* Every app icon is a rounded squircle, even artwork shipped with square corners. */
+.app-icon { border-radius: 22.5%; object-fit: cover; }
+
+/* iMessage bubble tails */
+.im-bubble { position: relative; }
+.im-bubble[data-tail="me"]::after, .im-bubble[data-tail="them"]::after { content: ""; position: absolute; bottom: 0; width: 12px; height: 16px; }
+.im-bubble[data-tail="me"]::after { right: -5px; background: radial-gradient(circle at 0 0, transparent 11px, var(--im-blue) 11.5px); clip-path: inset(4px 0 0 0); border-bottom-left-radius: 10px; }
+.im-bubble[data-tail="them"]::after { left: -5px; background: radial-gradient(circle at 100% 0, transparent 11px, var(--im-bubble) 11.5px); clip-path: inset(4px 0 0 0); border-bottom-right-radius: 10px; }
+
+/* Visible accent: the focused window carries the accent color */
+.win-focused { box-shadow: 0 0 0 1px var(--ring), 0 0 28px -6px var(--glow), var(--shadow-window); }
+.accent-ring { box-shadow: 0 0 0 2px var(--primary), 0 0 18px -2px var(--glow); }
+.accent-text { color: var(--primary); text-shadow: 0 0 14px var(--glow); }
+
+/* GPU hints while dragging a window */
+.win-dragging { will-change: transform; }
+.win-idle { contain: layout style; }
+
+/* ---------- interface motion (Settings → Interface animations) ---------- */
+@keyframes win-open { from { opacity: 0; transform: scale(.9) translateY(14px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes win-close { to { opacity: 0; transform: scale(.92) translateY(10px); filter: blur(4px); } }
+@keyframes win-min { to { opacity: 0; transform: scale(.4) translateY(60vh); } }
+@keyframes tile-in { from { opacity: 0; transform: translateY(18px) scale(.86); } to { opacity: 1; transform: none; } }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-6px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes zoom-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes backdrop-in { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; } }
+@keyframes dock-bounce { 0%,100% { transform: translateY(0); } 30% { transform: translateY(-12px); } 55% { transform: translateY(0); } 75% { transform: translateY(-5px); } }
+@keyframes running-pulse { 0%,100% { box-shadow: 0 0 0 0 var(--glow); } 50% { box-shadow: 0 0 8px 2px var(--glow); } }
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+@keyframes bubble-pop { 0% { opacity: 0; transform: scale(.6); } 70% { transform: scale(1.06); } 100% { opacity: 1; transform: none; } }
+@keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes gradient-pan { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+@keyframes ken-burns { from { transform: scale(1.02); } to { transform: scale(1.12) translate(-1.5%, -1%); } }
+@keyframes progress-stripes { from { background-position: 0 0; } to { background-position: 28px 0; } }
+
+[data-motion="on"] .anim-window { animation: win-open .32s cubic-bezier(.2,.9,.25,1.15) both; }
+[data-motion="on"] .anim-close { animation: win-close .16s ease-in forwards; }
+[data-motion="on"] .anim-min { animation: win-min .22s cubic-bezier(.5,0,.75,0) forwards; }
+[data-motion="on"] .anim-tile { animation: tile-in .42s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: calc(var(--i, 0) * 16ms); }
+[data-motion="on"] .anim-menu { animation: menu-in .16s cubic-bezier(.2,.9,.3,1.2) both; transform-origin: top left; }
+[data-motion="on"] .anim-rise { animation: rise-in .38s cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(var(--i, 0) * 40ms); }
+[data-motion="on"] .anim-zoom { animation: zoom-in .26s cubic-bezier(.2,.9,.3,1.15) both; }
+[data-motion="on"] .anim-slide { animation: slide-in-right .3s cubic-bezier(.2,.9,.3,1) both; }
+[data-motion="on"] .anim-backdrop { animation: backdrop-in .3s ease both; }
+[data-motion="on"] .anim-bounce { animation: dock-bounce .7s ease; }
+[data-motion="on"] .anim-pulse { animation: running-pulse 2.4s ease-in-out infinite; }
+[data-motion="on"] .anim-bubble { animation: bubble-pop .28s cubic-bezier(.2,.9,.3,1.3) both; }
+[data-motion="on"] .anim-float { animation: float-y 3.2s ease-in-out infinite; }
+[data-motion="on"] .anim-gradient { background-size: 200% 200%; animation: gradient-pan 6s linear infinite; }
+[data-motion="on"] .anim-kenburns { animation: ken-burns 18s ease-in-out infinite alternate; }
+.skeleton { background: linear-gradient(90deg, oklch(1 0 0 / 5%) 25%, oklch(1 0 0 / 12%) 50%, oklch(1 0 0 / 5%) 75%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+.progress-stripes { background-image: linear-gradient(45deg, oklch(1 0 0 / 22%) 25%, transparent 25%, transparent 50%, oklch(1 0 0 / 22%) 50%, oklch(1 0 0 / 22%) 75%, transparent 75%); background-size: 28px 28px; animation: progress-stripes .8s linear infinite; }
+[data-motion="on"] .hover-lift { transition: transform .22s cubic-bezier(.2,.9,.3,1.3), box-shadow .22s; }
+[data-motion="on"] .hover-lift:hover { transform: translateY(-4px) scale(1.03); }
+[data-motion="off"] .dock-icon:hover img { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="on"] * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

@@ -21,3 +21,4 @@
 - [ ] AI: ChatGPT layout, no Lovable branding, code blocks Copy / Download / Open in Code Editor
 - [ ] Install-as-app (manifest + Settings card)
 - [ ] Lots of UI animations (toggle in Settings), visible accent color
+- [ ] Fixes batch: new chat tables (hashed passkeys, gn/gn2 global rooms), Movies profiles/list/progress tables, assistant.svg icon pinned first, Open in Real Window bar

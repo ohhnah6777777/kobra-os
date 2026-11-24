@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import { APPS, DEFAULT_PINNED, appById, type AppId } from "./apps";
+import { APPS, DEFAULT_PINNED, appById, isAppId, type AppId } from "./apps";
+import { defaultWallpaper } from "./lib/wallpaperRandom";
 import { OS_VERSION, type Accent } from "./config";
 
 /* ---------- types ---------- */
 
-export type Wallpaper = "snowy" | "blackhole" | "custom";
+export type Wallpaper = "snowy" | "blackhole" | "tomnook" | "celestial" | "custom";
 export type CursorEffect = "cubes" | "liquid" | "strings" | "off";
 export type Cloak = "none" | "drive" | "classroom" | "canvas";
 
@@ -18,6 +19,8 @@ export type Settings = {
   barPosition: "bottom" | "left";
   /** Screen animations (cursor effects, window motion). Off unless the user turns them on. */
   animations: boolean;
+  /** Interface motion: window open/close, launcher cascade, dock bounce, menus. */
+  uiMotion: boolean;
   clock: { h24: boolean; seconds: boolean; date: boolean; center: boolean };
   widgets: Partial<Record<WidgetId, boolean>>;
   /** Widgets the user locked in place. */
@@ -42,7 +45,7 @@ export const WIDGET_IDS = ["clock", "weather", "sticky", "calendar", "battery", 
 export type WidgetId = (typeof WIDGET_IDS)[number];
 export type DesktopIcon = { id: string; kind: "app" | "game"; ref: string; x: number; y: number; name?: string; icon?: string };
 /** Bump when defaults change in a way that must override older saved settings. */
-export const SETTINGS_SCHEMA = 2;
+export const SETTINGS_SCHEMA = 3;
 
 export type Win = {
   id: string;
@@ -62,8 +65,9 @@ export type Win = {
 export type FsNode = { type: "dir" | "file"; content?: string; mtime: number };
 export type Fs = Record<string, FsNode>; // absolute paths, e.g. "/Documents/hello.txt"
 
-export type MediaItem = { id: number; type: "movie" | "tv"; title: string; poster: string | null; addedAt: number };
-export type MediaProgress = { id: number; type: "movie" | "tv"; title: string; poster: string | null; season?: number; episode?: number; position: number; duration: number; updatedAt: number };
+export type MediaItem = { id: number; type: "movie" | "tv"; title: string; poster: string | null; backdrop?: string | null; addedAt: number; profileId?: string };
+export type MediaProgress = { id: number; type: "movie" | "tv"; title: string; poster: string | null; season?: number; episode?: number; position: number; duration: number; updatedAt: number; profileId?: string; backdrop?: string | null };
+export type MovieProfile = { id: string; name: string; color: string };
 
 export type UserData = {
   fs: Fs;
@@ -73,6 +77,9 @@ export type UserData = {
   progress: Record<string, MediaProgress>; // key `${type}:${id}`
   recentGames: string[];
   favGames: string[];
+  /** Movies "Who's watching?" profiles. Synced with the account like everything else. */
+  profiles: MovieProfile[];
+  installedGames: string[];
 };
 
 export type User = { kind: "guest" } | { kind: "account"; id: string; name: string; email: string | null };
@@ -81,13 +88,14 @@ export type Phase = "boot" | "lock" | "desktop" | "sleep" | "restarting" | "shut
 /* ---------- defaults ---------- */
 
 export const defaultSettings = (): Settings => ({
-  wallpaper: "snowy",
+  wallpaper: defaultWallpaper(),
   customWallpaper: null,
   cursorEffect: "off",
   accent: "white",
   taskbar: "dock",
   barPosition: "bottom",
   animations: false,
+  uiMotion: true,
   clock: { h24: false, seconds: false, date: true, center: true },
   widgets: {},
   widgetLocked: [],
@@ -105,9 +113,27 @@ export const defaultSettings = (): Settings => ({
 
 /** Applies the newer defaults the user asked for on top of settings saved by older versions. */
 export function migrateSettings(saved: Partial<Settings> | undefined): Partial<Settings> | undefined {
-  if (!saved || (saved.schema ?? 1) >= SETTINGS_SCHEMA) return saved;
-  const d = defaultSettings();
-  return { ...saved, accent: d.accent, widgets: d.widgets, wallpaper: saved.wallpaper === "custom" || saved.wallpaper === "blackhole" ? saved.wallpaper : d.wallpaper, cursorEffect: d.cursorEffect, animations: false, pinned: d.pinned, schema: SETTINGS_SCHEMA };
+  if (!saved) return saved;
+  let out: Partial<Settings> = { ...saved };
+  const v = saved.schema ?? 1;
+  if (v < 2) {
+    const d = defaultSettings();
+    out = { ...out, accent: d.accent, widgets: d.widgets, wallpaper: saved.wallpaper === "custom" || saved.wallpaper === "blackhole" ? saved.wallpaper : d.wallpaper, cursorEffect: d.cursorEffect, animations: false, pinned: d.pinned };
+  }
+  if (v < 3) {
+    const pinned = (out.pinned ?? DEFAULT_PINNED).filter((a) => isAppId(a));
+    out = { ...out, pinned: pinned.includes("assistant") ? pinned : [...pinned, "assistant"], uiMotion: true };
+  }
+  return { ...out, schema: SETTINGS_SCHEMA };
+}
+
+/** Drops apps that no longer exist (e.g. Terminal) from pins and desktop shortcuts. */
+export function cleanSettings(s: Settings): Settings {
+  return {
+    ...s,
+    pinned: s.pinned.filter((a) => isAppId(a)),
+    desktopIcons: (s.desktopIcons ?? []).filter((d) => d.kind !== "app" || isAppId(d.ref)),
+  };
 }
 
 const now = () => Date.now();
@@ -136,6 +162,8 @@ export const defaultData = (): UserData => ({
   progress: {},
   recentGames: [],
   favGames: [],
+  profiles: [],
+  installedGames: [],
 });
 
 /* ---------- path helpers ---------- */
@@ -231,7 +259,7 @@ export const useOS = create<OSState>((set, get) => ({
   setSyncStatus: (syncStatus) => set({ syncStatus }),
   hydrate: ({ settings, data, windows }) =>
     set((s) => ({
-      settings: { ...defaultSettings(), ...s.settings, ...(migrateSettings(settings) ?? {}) },
+      settings: cleanSettings({ ...defaultSettings(), ...s.settings, ...(migrateSettings(settings) ?? {}) }),
       data: { ...defaultData(), ...(data ?? {}), fs: { ...defaultFs(), ...(data?.fs ?? {}) } },
       windows: (windows ?? []).filter((w) => appById(w.app)),
       zTop: Math.max(10, ...(windows ?? []).map((w) => w.z)) + 1,

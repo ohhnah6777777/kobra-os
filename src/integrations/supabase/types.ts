@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_members: {
+        Row: {
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          author: string
+          body: string
+          created_at: string
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          author: string
+          body: string
+          created_at?: string
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          body?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_reactions: {
+        Row: {
+          author: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          author: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          emoji?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          name: string
+          passkey_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          name: string
+          passkey_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          passkey_hash?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -48,6 +162,103 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pickl_list: {
+        Row: {
+          added_at: string
+          backdrop: string | null
+          media_id: string
+          poster: string | null
+          profile_id: string
+          title: string
+        }
+        Insert: {
+          added_at?: string
+          backdrop?: string | null
+          media_id: string
+          poster?: string | null
+          profile_id: string
+          title: string
+        }
+        Update: {
+          added_at?: string
+          backdrop?: string | null
+          media_id?: string
+          poster?: string | null
+          profile_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickl_list_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "pickl_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pickl_profiles: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pickl_progress: {
+        Row: {
+          duration_sec: number
+          media_id: string
+          poster: string | null
+          profile_id: string
+          time_sec: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          duration_sec?: number
+          media_id: string
+          poster?: string | null
+          profile_id: string
+          time_sec?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          duration_sec?: number
+          media_id?: string
+          poster?: string | null
+          profile_id?: string
+          time_sec?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickl_progress_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "pickl_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -129,7 +340,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_read_room: { Args: { rid: string }; Returns: boolean }
+      create_chat_room: {
+        Args: { p_name: string; p_passkey?: string; p_private: boolean }
+        Returns: {
+          id: string
+          kind: string
+          name: string
+        }[]
+      }
+      is_room_member: { Args: { rid: string }; Returns: boolean }
+      join_private_room: {
+        Args: { p_name: string; p_passkey: string }
+        Returns: {
+          id: string
+          kind: string
+          name: string
+        }[]
+      }
+      owns_pickl_profile: { Args: { pid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
